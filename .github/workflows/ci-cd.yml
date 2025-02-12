@@ -16,10 +16,12 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v2
         with:
-          java-version: '21'
+          java-version: '21'  # Ensure you're using JDK 21
+          java-package: jdk  # Use the full JDK package, not just JRE
+          architecture: x64
 
       - name: Run tests with Maven
-        run: mvn clean test
+        run: mvn clean test  # Run Maven tests
 
       - name: Build Docker image
         if: success()
