@@ -1,0 +1,47 @@
+name: CI/CD for Spring Boot App
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+    paths:
+      - '**/*.java'
+      - '**/*.xml'  # If you have pom.xml or any other config files
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up JDK 21
+      - name: Set up JDK 21
+        uses: actions/setup-java@v2
+        with:
+          java-version: '21'
+
+      # Step 3: Run tests
+      - name: Run tests with Maven
+        run: mvn clean test
+
+      # Step 4: Build Docker image if tests pass
+      - name: Build Docker image
+        if: success()  # Only build if tests pass
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/springboot-app:${{ github.sha }} .
+
+      # Step 5: Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step 6: Push Docker image to Docker Hub
+      - name: Push Docker image
+        if: success()
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/springboot-app:${{ github.sha }}
