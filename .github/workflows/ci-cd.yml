@@ -38,9 +38,10 @@ jobs:
 
       - name: Build Docker Image
         run: |
-            IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/springboot-ci-cd"
-            TAG="${{ github.sha }}"
-            docker build -t $IMAGE_NAME:$TAG .
+          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/springboot-ci-cd"
+          TAG="${{ github.sha }}"
+          echo "Building Docker image with tag: $IMAGE_NAME:$TAG"
+          docker build -t $IMAGE_NAME:$TAG .
 
       - name: Push Docker Image to Docker Hub
         run: |
