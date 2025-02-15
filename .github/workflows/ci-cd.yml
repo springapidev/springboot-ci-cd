@@ -32,16 +32,18 @@ jobs:
             fi
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-            username: ${{ secrets.DOCKER_USERNAME }}
-            password: ${{ secrets.DOCKER_TOKEN }}
+        id: docker-hub
+        env:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        run: docker login -u "$username" -p "$password"
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: |
-                  ${{ secrets.DOCKER_USERNAME }}/springboot-ci-cd:latest
-                  ${{ secrets.DOCKER_USERNAME }}/springboot-ci-cd:${{ github.sha }}
+      - name: Build the Docker Image
+        id: build-docker-image
+        run: |
+          ls -la 
+          docker build . -f Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/springboot-ci-cd:latest
+
+      - name: Push the Docker Image
+        id: push-docker-image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/springboot-ci-cd:latest
